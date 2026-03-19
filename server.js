@@ -22,41 +22,60 @@ app.use(express.static(path.join(__dirname, 'public'))); // Serve frontend files
 let aiData = [];
 let communityBoard = [];
 let captchaStats = { humans: 0, bots: 0 };
+let massiveKB = [];
 
 const COMMUNITY_FILE = path.join(__dirname, 'community_board.json');
 const CAPTCHA_STATS_FILE = path.join(__dirname, 'captcha_stats.json');
-const MERGE_THRESHOLD = 100; // 100 Qs + 100 As = 200 messages
+const KB_FILE_GZ = path.join(__dirname, 'billions_massive_data.json.gz');
 
 // Helper: Read data into memory
 function loadData() {
   try {
-    const compressedData = fs.readFileSync(DATA_FILE);
-    const data = zlib.gunzipSync(compressedData).toString('utf8');
-    aiData = JSON.parse(data);
-    console.log(`Loaded ${aiData.length} records into AI memory.`);
+    // Load existing compressed data (aiData)
+    if (fs.existsSync(DATA_FILE)) {
+      const compressedData = fs.readFileSync(DATA_FILE);
+      const data = zlib.gunzipSync(compressedData).toString('utf8');
+      aiData = JSON.parse(data);
+      console.log(`Loaded ${aiData.length} records into AI memory.`);
+    }
+
+    // Load Massive Knowledge Base (Compressed)
+    if (fs.existsSync(KB_FILE_GZ)) {
+      const compressedKB = fs.readFileSync(KB_FILE_GZ);
+      const kbContent = zlib.gunzipSync(compressedKB).toString('utf8');
+      massiveKB = JSON.parse(kbContent);
+      console.log(`Massive Knowledge Base loaded: ${massiveKB.length} entries (Compressed).`);
+    }
 
     // Load Community Board
     if (fs.existsSync(COMMUNITY_FILE)) {
       const commData = fs.readFileSync(COMMUNITY_FILE, 'utf8');
       communityBoard = JSON.parse(commData);
-      console.log(`Loaded ${communityBoard.length} items to community board.`);
-    } else {
-      communityBoard = [];
-      fs.writeFileSync(COMMUNITY_FILE, JSON.stringify(communityBoard), 'utf8');
     }
-
+    
     // Load Captcha Stats
     if (fs.existsSync(CAPTCHA_STATS_FILE)) {
       const statsData = fs.readFileSync(CAPTCHA_STATS_FILE, 'utf8');
       captchaStats = JSON.parse(statsData);
-      console.log(`Loaded captcha stats: Humans ${captchaStats.humans}, Bots ${captchaStats.bots}`);
-    } else {
-      fs.writeFileSync(CAPTCHA_STATS_FILE, JSON.stringify(captchaStats), 'utf8');
     }
   } catch (err) {
-    console.error('Error reading data file', err);
-    aiData = [];
+    console.error('Error loading data:', err);
   }
+}
+
+function searchKB(query) {
+  const q = query.toLowerCase().trim();
+  const words = q.split(/\s+/);
+  
+  // 1. Check for exact question match or keyword match
+  const match = massiveKB.find(item => {
+    // Exact question match
+    if (item.q && item.q.toLowerCase() === q) return true;
+    // Keyword match (if any word in query matches a tag)
+    if (item.tags && item.tags.some(tag => words.includes(tag) || q === tag)) return true;
+    return false;
+  });
+  return match ? match.a : null;
 }
 
 // Load data on startup
@@ -130,13 +149,29 @@ function checkAndMergeAI() {
 
 // AI Chat Route Using Gemini
 app.post('/api/chat', async (req, res) => {
-  const userText = (req.body.question || '').trim();
+  const userText = req.body.question;
   if (!userText) {
-    return res.json({ answer: "Sorry, I didn't understand your question. Can you clarify?" });
+    return res.status(400).json({ error: 'Question is required' });
   }
 
+  // 1. Check Massive Knowledge Base First (Instant)
+  const kbAnswer = searchKB(userText);
+  if (kbAnswer) {
+    console.log(`KB Match found for: "${userText}"`);
+    return res.json({ answer: kbAnswer });
+  }
+
+  // 2. Fallback to Gemini AI Brain
   try {
-    const prompt = `You are "Billions Assistant", a helpful and intelligent AI for the Billions Network. User question: ${userText}`;
+    const prompt = `You are "Billions Assistant", a helpful and intelligent AI for the Billions Network. 
+    Use the following project context if relevant:
+    - TGE: Q3 2026
+    - Airdrop: Based on community & game scores
+    - Tech: Open Claw interface
+    - Socials: @billions_network
+    
+    User question: ${userText}`;
+    
     const result = await model.generateContent(prompt);
     const response = await result.response;
     const answer = response.text();
