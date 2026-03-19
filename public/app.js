@@ -9,23 +9,49 @@ const API_BASE = (window.location.hostname === 'localhost' || window.location.ho
     ? 'http://localhost:3000' 
     : 'https://billions-netw-ai-1.onrender.com';
 
-// Theme toggle
-let isDarkTheme = false;
-themeToggle.addEventListener('click', () => {
-    isDarkTheme = !isDarkTheme;
-    document.body.setAttribute('data-theme', isDarkTheme ? 'dark' : 'light');
-    themeToggle.innerHTML = isDarkTheme ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
-});
+// Theme toggle (Simplified for new UI)
+let isDarkTheme = true; // Default to dark for futuristic look
+document.body.setAttribute('data-theme', 'dark');
+
+// Typing Effect for Hero Title
+const typingText = document.getElementById('typing-text');
+const phrases = ["BILLIONS NETWORK", "INTELLIGENT FUTURE", "AI INNOVATION"];
+let phraseIndex = 0;
+let charIndex = 0;
+let isDeleting = false;
+let typeSpeed = 100;
+
+function type() {
+    const current = phrases[phraseIndex];
+    if (isDeleting) {
+        typingText.textContent = current.substring(0, charIndex - 1);
+        charIndex--;
+        typeSpeed = 50;
+    } else {
+        typingText.textContent = current.substring(0, charIndex + 1);
+        charIndex++;
+        typeSpeed = 150;
+    }
+
+    if (!isDeleting && charIndex === current.length) {
+        isDeleting = true;
+        typeSpeed = 2000; // Pause at end
+    } else if (isDeleting && charIndex === 0) {
+        isDeleting = false;
+        phraseIndex = (phraseIndex + 1) % phrases.length;
+        typeSpeed = 500;
+    }
+
+    setTimeout(type, typeSpeed);
+}
+
+document.addEventListener('DOMContentLoaded', type);
 
 function addMessage(text, isUser) {
     const messageDiv = document.createElement('div');
-    messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
+    messageDiv.className = `mini-msg ${isUser ? 'user' : 'bot'}`;
+    messageDiv.textContent = text;
     
-    const contentDiv = document.createElement('div');
-    contentDiv.className = 'message-content';
-    contentDiv.textContent = text;
-    
-    messageDiv.appendChild(contentDiv);
     chatMessages.appendChild(messageDiv);
     
     // Auto scroll to bottom
@@ -203,13 +229,12 @@ fetchCommunityPosts();
 const captchaContainer = document.getElementById('captcha-container');
 const captchaQuestion = document.getElementById('captcha-question');
 const captchaOptions = document.getElementById('captcha-options');
-const captchaStatsBlock = document.getElementById('captcha-stats');
-const statHCount = document.getElementById('stat-h-count');
-const statBCount = document.getElementById('stat-b-count');
+const statProgressBar = document.getElementById('stats-progress-fill');
+const statsBarContainer = document.getElementById('stats-bar');
 
 let captchaData = [];
 let currentCaptcha = null;
-let hasPlayed = false; // Limit to one try
+let hasPlayed = false;
 
 function initCaptcha() {
     if (window.CAPTCHA_DATA) {
@@ -226,16 +251,20 @@ async function loadCaptchaStats() {
     try {
         const res = await fetch(`${API_BASE}/api/captcha/stats`);
         const stats = await res.json();
-        statHCount.textContent = stats.humans || 0;
-        statBCount.textContent = stats.bots || 0;
+        
+        // Calculate percentage for progress bar
+        const total = (stats.humans || 0) + (stats.bots || 0);
+        if (total > 0) {
+            const humanPercent = Math.round((stats.humans / total) * 100);
+            statProgressBar.style.width = `${humanPercent}%`;
+        } else {
+            statProgressBar.style.width = `50%`;
+        }
     } catch (e) {
         console.error('Error loading stats', e);
-        // Default to 0 if server is offline or not updated yet
-        statHCount.textContent = 0;
-        statBCount.textContent = 0;
+        statProgressBar.style.width = `50%`;
     } finally {
-        // Always show the block so the user can see the UI
-        captchaStatsBlock.style.display = 'flex';
+        statsBarContainer.style.display = 'flex';
     }
 }
 
@@ -267,7 +296,7 @@ function loadRandomCaptcha() {
     // Render buttons
     currentCaptcha.options.forEach(option => {
         const btn = document.createElement('button');
-        btn.className = 'captcha-btn';
+        btn.className = 'option-btn';
         btn.textContent = option;
         
         btn.onclick = () => checkCaptcha(btn, option);
