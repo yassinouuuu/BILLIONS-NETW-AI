@@ -10,27 +10,45 @@
 </head>
 <body>
 
-    <!-- Top Navigation & Stats -->
-    <nav class="top-nav">
-        <div class="logo">
-            <i class="fas fa-microchip"></i>
-            <span>Billions AI</span>
-        </div>
-        
-        <div class="nav-links">
-            <a href="#" class="active">Home</a>
-        </div>
-
-        <div class="stats-bar" id="stats-bar" style="display: none;">
-            <span class="stats-label"><i class="fas fa-users"></i> Humans</span>
-            <div class="stats-progress-container">
-                <div class="stats-progress-fill" id="stats-progress-fill"></div>
+    <!-- Splash Screen Overlay -->
+    <div id="splash-screen">
+        <div class="neural-bg"></div>
+        <div class="splash-content">
+            <div class="b-logo-outer">
+                <div class="b-logo-inner">B</div>
             </div>
-            <span class="stats-label">Bots <i class="fas fa-robot"></i></span>
+            <h1 class="splash-welcome">WELCOME TO BILLIONS NETWORK</h1>
+            <div class="splash-footer">
+                <p id="status-text">INITIALIZING NETWORK CONNECTIVITY...</p>
+                <div class="progress-container">
+                    <div id="progress-bar-fill"></div>
+                </div>
+            </div>
         </div>
-        
-        <button class="action-btn" id="theme-toggle" style="display: none;">Dark Mode</button>
-    </nav>
+    </div>
+
+    <!-- Main Application UI (Hidden by default) -->
+    <div id="main-app" style="opacity: 0; visibility: hidden; transition: opacity 1s ease;">
+        <nav class="top-nav">
+            <div class="logo">
+                <i class="fas fa-microchip"></i>
+                <span>Billions AI</span>
+            </div>
+            
+            <div class="nav-links">
+                <a href="#" class="active">Home</a>
+            </div>
+
+            <div class="stats-bar" id="stats-bar" style="display: none;">
+                <span class="stats-label"><i class="fas fa-users"></i> Humans</span>
+                <div class="stats-progress-container">
+                    <div class="stats-progress-fill" id="stats-progress-fill"></div>
+                </div>
+                <span class="stats-label">Bots <i class="fas fa-robot"></i></span>
+            </div>
+            
+            <button class="action-btn" id="theme-toggle" style="display: none;">Dark Mode</button>
+        </nav>
 
     <!-- Hero Section -->
     <header class="hero">
@@ -98,7 +116,7 @@
             </div>
         </div>
 
-    </main>
+    </div>
 
     <script src="captcha_data.js"></script>
     <script src="app.js"></script>
