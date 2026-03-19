@@ -7,7 +7,7 @@ const themeToggle = document.getElementById('theme-toggle');
 // Dynamic API Base URL for local testing vs live GitHub Pages
 const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') 
     ? 'http://localhost:3000' 
-    : 'https://billions-netw-ai-1.onrender.com';
+    : ''; // Empty string means use the same domain relative path
 
 // Theme toggle (Simplified for new UI)
 let isDarkTheme = true; // Default to dark for futuristic look
@@ -84,12 +84,15 @@ async function sendMessage() {
         // Hide loading
         loading.style.display = 'none';
         
-        // Add bot message
-        addMessage(data.answer, false);
+        if (response.ok) {
+            addMessage(data.answer, false);
+        } else {
+            addMessage(data.answer || 'An error occurred on the server.', false);
+        }
     } catch (error) {
         console.error('Error:', error);
         loading.style.display = 'none';
-        addMessage('An error occurred while connecting to the server. Make sure Node.js is running!', false);
+        addMessage('Connection failed. Please ensure the server is running and the API key is set in Render settings!', false);
     }
 }
 

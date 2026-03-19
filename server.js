@@ -143,8 +143,10 @@ app.post('/api/chat', async (req, res) => {
     res.json({ answer });
   } catch (error) {
     console.error('Error with Gemini API:', error);
+    const errorMsg = error.message || 'Unknown error';
     res.status(500).json({ 
-      answer: "I'm having trouble connecting to my Gemini brain right now. Please check your API key or try again later." 
+      answer: `I'm having trouble connecting to my Gemini brain. Error: ${errorMsg}`,
+      debug: error
     });
   }
 });
