@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Billions Network AI</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<body>
+    <!-- Dynamic Title -->
+    <div class="top-title-container">
+        <h1 class="dynamic-title">gBillions</h1>
+    </div>
+
+    <div class="animated-bg">
+        <div class="bg-text-container">
+            <h1 class="bg-text">BILLIONS NETWORK</h1>
+        </div>
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+    <div class="main-layout">
+        <!-- AI Chat Side -->
+        <div class="chat-container">
+            <header class="chat-header">
+                <div class="bot-info">
+                    <div class="bot-avatar"><i class="fas fa-robot"></i></div>
+                    <div>
+                        <h2>Billions Assistant</h2>
+                        <span class="status">Online Now</span>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button class="theme-toggle" id="theme-toggle"><i class="fas fa-moon"></i></button>
+                </div>
+            </header>
+
+            <div class="chat-messages" id="chat-messages">
+                <div class="message bot-message">
+                    <div class="message-content">Hello! How can I help you today? 😊</div>
+                </div>
+            </div>
+
+            <div class="loading-indicator" id="loading" style="display: none;">
+                <span>Thinking</span><span class="dots">...</span>
+            </div>
+
+            <div class="chat-input-area">
+                <input type="text" id="user-input" placeholder="Type your question here..." autocomplete="off">
+                <button id="send-btn" class="send-btn"><i class="fas fa-paper-plane"></i></button>
+            </div>
+        </div>
+        
+        <!-- Community Board Side -->
+        <div class="community-container">
+            <header class="chat-header">
+                <div>
+                    <h2>Community Board</h2>
+                    <span class="status">Live Q&A</i></span>
+                </div>
+            </header>
+
+            <div class="community-messages" id="community-messages">
+                <!-- Community posts will load here -->
+            </div>
+
+            <div class="chat-input-area">
+                <input type="text" id="community-input" placeholder="Ask the community a question..." autocomplete="off">
+                <button id="community-send-btn" class="send-btn"><i class="fas fa-users"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logic Mini Game -->
+    <div class="captcha-container" id="captcha-container">
+        <header class="chat-header">
+            <div>
+                <h2>Mini Game: Logic Test</h2>
+                <span class="status" style="color:#f59e0b;">Choose the logical story for fun 🧩</span>
+            </div>
+        </header>
+        <div class="captcha-body">
+            <p id="captcha-question" class="captcha-q">Loading story...</p>
+            <div id="captcha-options" class="captcha-options-grid">
+                <!-- Options will load here -->
+            </div>
+            
+            <!-- Statistics Bar -->
+            <div id="captcha-stats" class="captcha-stats" style="display: none;">
+                <span class="stat-human"><i class="fas fa-user-check"></i> Humans: <b id="stat-h-count">0</b></span>
+                <span class="stat-bot"><i class="fas fa-robot"></i> Bots: <b id="stat-b-count">0</b></span>
+            </div>
+        </div>
+    </div>
+
+    <script src="captcha_data.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
