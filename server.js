@@ -16,7 +16,7 @@ app.use(bodyParser.json());
 app.use(express.static('public'));
 
 // Data paths
-const KB_FILE_GZ = path.join(__dirname, 'billions_mega_database.jsonl.gz');
+const KB_FILE_GZ = path.join(__dirname, 'billions_combined_mega_db.jsonl.gz');
 const COMMUNITY_FILE = path.join(__dirname, 'community_board.json');
 const CAPTCHA_STATS_FILE = path.join(__dirname, 'captcha_stats.json');
 
