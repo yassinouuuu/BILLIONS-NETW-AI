@@ -42,30 +42,49 @@ async function loadMassiveKnowledgeStream() {
 
         const answerSet = new Map();
         let count = 0;
+        let indexLimit = 300000; // Limit indexed questions to 300k to stay under 512MB RAM
 
         for await (const line of rl) {
             const trimmed = line.trim();
             if (!trimmed) continue;
             try {
                 const item = JSON.parse(trimmed);
+                
+                // Always store unique answers
                 if (!answerSet.has(item.a)) {
                     answerSet.set(item.a, uniqueAnswers.length);
                     uniqueAnswers.push(item.a);
                 }
                 const answerIdx = answerSet.get(item.a);
+
+                // Priority indexing
                 const cleanQ = item.q.toLowerCase().trim();
-                knowledgeMap.set(cleanQ, answerIdx);
-                if (item.tags) {
-                    item.tags.forEach(tag => {
-                        if (!keywordMap.has(tag)) keywordMap.set(tag, answerIdx);
-                    });
+                const isPriority = item.tags && (item.tags.includes('core') || item.tags.includes('specialized') || item.tags.includes('discord') || item.tags.includes('airdrop'));
+
+                if (isPriority || (count < indexLimit)) {
+                    knowledgeMap.set(cleanQ, answerIdx);
+                    if (item.tags) {
+                        item.tags.forEach(tag => {
+                            if (!keywordMap.has(tag)) keywordMap.set(tag, answerIdx);
+                        });
+                    }
                 }
+                
                 count++;
+                
+                // Monitor memory every 50k lines
+                if (count % 50000 === 0) {
+                    const mem = process.memoryUsage().heapUsed / 1024 / 1024;
+                    if (mem > 450) {
+                        console.log(`⚠️ Memory Warning: ${mem.toFixed(2)} MB. Stopping further indexing.`);
+                        break; 
+                    }
+                }
             } catch (e) { }
         }
 
-        console.log(`✅ Success: ${count} patterns indexed via TRUE stream.`);
-        console.log(`✅ Stable RAM Usage: ${(process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2)} MB`);
+        console.log(`✅ Success: ${count} patterns processed. ${knowledgeMap.size} unique keys indexed.`);
+        console.log(`✅ Final RAM Usage: ${(process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2)} MB`);
     } catch (err) {
         console.error('Brain stream error:', err);
     }
