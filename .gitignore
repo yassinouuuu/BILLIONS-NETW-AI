@@ -3,3 +3,5 @@ development_files/
 .DS_Store
 .env
 *.log
+*.jsonl
+*.zip
