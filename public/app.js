@@ -1,47 +1,10 @@
-/**
- * SPLASH SCREEN & INITIALIZATION
- */
-function initSplashScreen() {
-    const splash = document.getElementById('splash-screen');
-    const mainApp = document.getElementById('main-app');
-    const progressBar = document.getElementById('progress-bar-fill');
-    const statusText = document.getElementById('status-text');
 
-    const loadingSteps = [
-        { progress: 20, text: "INITIALIZING NETWORK CONNECTIVITY..." },
-        { progress: 45, text: "LOADING MASSIVE KNOWLEDGE ENGINE... (1M+ RECORDS)" },
-        { progress: 70, text: "DECRYPTING BILLIONS PROTOCOLS..." },
-        { progress: 85, text: "ESTABLISHING SECURE AGENT LINK..." },
-        { progress: 100, text: "READY FOR CONNECTION" }
-    ];
-
-    let currentStep = 0;
-
-    const interval = setInterval(() => {
-        if (currentStep >= loadingSteps.length) {
-            clearInterval(interval);
-            setTimeout(() => {
-                splash.classList.add('splash-hidden');
-                mainApp.classList.add('app-visible');
-                // Trigger title typing after splash is gone
-                if (typeof type === 'function') {
-                    setTimeout(type, 500);
-                }
-            }, 800);
-            return;
-        }
-
-        const { progress, text } = loadingSteps[currentStep];
-        progressBar.style.width = `${progress}%`;
-        statusText.innerText = text;
-        currentStep++;
-    }, 700);
-}
 
 document.addEventListener('DOMContentLoaded', () => {
-    initSplashScreen();
-    // Keep existing DOMContentLoaded logic below or call it after splash?... 
-    // Usually better to start loading data immediately in background.
+    // Start title animation immediately
+    if (typeof type === 'function') {
+        type();
+    }
 });
 
 const chatMessages = document.getElementById('chat-messages');
